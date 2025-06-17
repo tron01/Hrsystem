@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: job-posting-service
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/jobdb
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
