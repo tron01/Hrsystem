@@ -16,7 +16,7 @@ public class ResumeParserService {
 	private final TikaTextExtractor textExtractor;
 	
 	public ParsedResume parseResumeFromPdfUrl(ResumeParseEvent event) {
-		// TODO: Download and parse the PDF using Apache PDFBox, Tika, or NLP model
+
 		log.info("Parsing PDF: {}", event.getPdfUrl());
 		
 		String content = textExtractor.extractTextFromPdfUrl(event.getPdfUrl());

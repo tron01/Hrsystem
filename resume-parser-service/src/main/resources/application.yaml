@@ -6,11 +6,14 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "*"
-        spring.json.value.default.type: com.example.resumeparser.kafka.event.ResumeParseEvent
-
+        spring.json.value.default.type: com.Abhijith.resume_parser_service.kafka.event.ResumeParseEvent
+        spring.json.trusted.packages: "com.Abhijith.resume_parser_service.kafka.event"
   application:
     name: resume-parser-service
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/applicationdb
+
 
 server:
   port: 8083
