@@ -10,7 +10,7 @@
         <module name="api-gateway" />
         <module name="eureka-server" />
       </profile>
-      <profile name="Annotation profile for resume-parser-service" enabled="true">
+      <profile name="Annotation profile for application-submit-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -22,11 +22,6 @@
         <module name="job-posting-service" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="application-service" target="17" />
-      <module name="central-auth-service" target="17" />
-      <module name="ui-microservice" target="17" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
