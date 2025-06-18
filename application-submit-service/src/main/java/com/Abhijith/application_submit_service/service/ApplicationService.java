@@ -34,13 +34,15 @@ public class ApplicationService {
         return applicationRepository.findById(id).map(this::toDto);
     }
 
-    public ApplicationDto createApplication(ApplicationDto dto, MultipartFile pdfFile) {
+    public ApplicationDto createApplication(String jobId, MultipartFile pdfFile) {
         String pdfUrl = cloudinaryService.uploadPdf(pdfFile);
-        Application application = toEntity(dto);
+        
+        Application application = new Application();
+        application.setJobId(jobId);
         application.setPdfUrl(pdfUrl);
+        
         Application saved = applicationRepository.save(application);
         
-        // Send message to Kafka for resume parsing
         sendResumeParseEvent(saved.getJobId(), saved.getId(), saved.getPdfUrl());
         
         return toDto(saved);
@@ -60,12 +62,7 @@ public class ApplicationService {
         resumeParseProducer.sendResumeParseEvent(event);
     }
 
-    public Optional<ApplicationDto> updateApplication(String id, ApplicationDto dto) {
-        return applicationRepository.findById(id).map(existing -> {
-            BeanUtils.copyProperties(dto, existing,"pdfUrl","jobId");
-            return toDto(applicationRepository.save(existing));
-        });
-    }
+    
 
     public boolean deleteApplication(String id) {
         if (applicationRepository.existsById(id)) {
@@ -78,20 +75,8 @@ public class ApplicationService {
     private ApplicationDto toDto(Application application) {
         return ApplicationDto.builder()
                 .jobId(application.getJobId())
-                .applicantName(application.getApplicantName())
-                .email(application.getEmail())
-                .phone(application.getPhone())
                 .pdfUrl(application.getPdfUrl())
                 .build();
     }
-
-    private Application toEntity(ApplicationDto dto) {
-        return Application.builder()
-                .jobId(dto.getJobId())
-                .applicantName(dto.getApplicantName())
-                .email(dto.getEmail())
-                .phone(dto.getPhone())
-                .pdfUrl(dto.getPdfUrl())
-                .build();
-    }
+    
 }

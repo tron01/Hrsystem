@@ -8,9 +8,6 @@ import lombok.*;
 @Builder
 public class ApplicationDto {
     private String jobId;
-    private String applicantName;
-    private String email;
-    private String phone;
     private String pdfUrl;
 }
 
