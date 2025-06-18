@@ -2,6 +2,9 @@ server:
   port: 8080
 
 spring:
+  servlet:
+    multipart:
+      enabled: true
   cloud:
     gateway:
       server:
@@ -13,15 +16,22 @@ spring:
                 - Path=/jobs
                 - Path=/jobs/**
               filters:
-                - RewritePath=/jobs(?<segment>/?.*), /api/jobs${segment}
+                - RewritePath=/jobs/(?<segment>.*), /api/jobs/${segment}
+
+            - id: application-submit-service-root
+              uri: lb://application-submit-service
+              predicates:
+                - Path=/applications
+              filters:
+                - RewritePath=/applications, /api/applications
 
             - id: application-submit-service
               uri: lb://application-submit-service
               predicates:
-                - Path=/applications
                 - Path=/applications/**
               filters:
-                - RewritePath=/applications(?<segment>/?.*), /api/applications${segment}
+                - RewritePath=/applications/(?<segment>.*), /api/applications/${segment}
+
 
 eureka:
   client:
@@ -32,7 +42,9 @@ eureka:
 
 logging:
   level:
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
     org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG
 
 management:
   endpoints:
