@@ -3,6 +3,7 @@ package com.Abhijith.application_submit_service.controller;
 import com.Abhijith.application_submit_service.dto.ApplicationDto;
 import com.Abhijith.application_submit_service.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/applications")
 @RequiredArgsConstructor
+@Slf4j
 public class ApplicationController {
     private final ApplicationService applicationService;
 
@@ -31,10 +33,14 @@ public class ApplicationController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping(path = "/upload",consumes =  MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApplicationDto> createApplication(
             @RequestParam("jobId") String jobId,
             @RequestParam("resumeFile") MultipartFile resumeFile) {
+        
+        log.info("------------Received request for uploading application------------");
+        log.info(" JobId = {}, FileName = {}", jobId, resumeFile.getOriginalFilename());
+        
         ApplicationDto createdApp = applicationService.createApplication(jobId,resumeFile);
         return new ResponseEntity<>(createdApp, HttpStatus.CREATED);
     }
