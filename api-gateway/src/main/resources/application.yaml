@@ -1,43 +1,44 @@
+server:
+  port: 8080
+
 spring:
   cloud:
     gateway:
       server:
-        webflux:
+        webmvc:
           routes:
             - id: job-posting-service
               uri: lb://job-posting-service
               predicates:
-                - Path=/jobs, /jobs/**
+                - Path=/jobs
+                - Path=/jobs/**
               filters:
                 - RewritePath=/jobs(?<segment>/?.*), /api/jobs${segment}
 
             - id: application-submit-service
               uri: lb://application-submit-service
               predicates:
-                - Path=/applications/**, /applications
+                - Path=/applications
+                - Path=/applications/**
               filters:
                 - RewritePath=/applications(?<segment>/?.*), /api/applications${segment}
+
 eureka:
   client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
-
-server:
-  port: 8080
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
 
 management:
-  endpoint:
-    gateway:
-      enabled: true
   endpoints:
     web:
       exposure:
         include: "*"
-
-
+  endpoint:
+    gateway:
+      enabled: true
