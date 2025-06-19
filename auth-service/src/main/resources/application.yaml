@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: auth-service
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/applicationdb
+
+server:
+  port: 8081
+
+jwt:
+  secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf
+  expiration: 3600000 # 1 hour in ms
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
