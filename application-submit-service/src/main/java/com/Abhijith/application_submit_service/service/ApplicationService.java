@@ -24,16 +24,9 @@ public class ApplicationService {
     private final CloudinaryService cloudinaryService;
     private final ResumeParseProducer resumeParseProducer;
 
-    public List<ApplicationDto> getAllApplications() {
-        return applicationRepository.findAll().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
+  
 
-    public Optional<ApplicationDto> getApplicationById(String id) {
-        return applicationRepository.findById(id).map(this::toDto);
-    }
-
+   
     public ApplicationDto createApplication(String jobId, MultipartFile pdfFile) {
         String pdfUrl = cloudinaryService.uploadPdf(pdfFile);
         
@@ -43,9 +36,13 @@ public class ApplicationService {
         
         Application saved = applicationRepository.save(application);
         
+        // 3. Convert to DTO
+        ApplicationDto dto = new ApplicationDto();
+        BeanUtils.copyProperties(saved, dto);
+        
         sendResumeParseEvent(saved.getJobId(), saved.getId(), saved.getPdfUrl());
         
-        return toDto(saved);
+        return dto;
     }
 
     private void sendResumeParseEvent(String jobId, String applicationId, String pdfUrl) {
@@ -62,21 +59,26 @@ public class ApplicationService {
         resumeParseProducer.sendResumeParseEvent(event);
     }
 
-    
 
-    public boolean deleteApplication(String id) {
-        if (applicationRepository.existsById(id)) {
-            applicationRepository.deleteById(id);
-            return true;
-        }
-        return false;
+
+    public List<ApplicationDto> getAllApplications() {
+        return applicationRepository.findAll().stream()
+                       .map(application -> {
+                           ApplicationDto dto = new ApplicationDto();
+                           BeanUtils.copyProperties(application, dto);
+                           return dto;
+                       })
+                       .collect(Collectors.toList());
     }
 
-    private ApplicationDto toDto(Application application) {
-        return ApplicationDto.builder()
-                .jobId(application.getJobId())
-                .pdfUrl(application.getPdfUrl())
-                .build();
+    public ApplicationDto getApplicationById(String id) {
+        return applicationRepository.findById(id)
+                       .map(application -> {
+                           ApplicationDto dto = new ApplicationDto();
+                           BeanUtils.copyProperties(application, dto);
+                           return dto;
+                       })
+                       .orElse(null);
     }
     
 }

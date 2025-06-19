@@ -19,20 +19,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ApplicationController {
+    
     private final ApplicationService applicationService;
-
-    @GetMapping
-    public List<ApplicationDto> getAllApplications() {
-        return applicationService.getAllApplications();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApplicationDto> getApplicationById(@PathVariable String id) {
-        return applicationService.getApplicationById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
+    
     @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApplicationDto> createApplication(
             @RequestParam("jobId") String jobId,
@@ -44,10 +33,21 @@ public class ApplicationController {
         ApplicationDto createdApp = applicationService.createApplication(jobId,resumeFile);
         return new ResponseEntity<>(createdApp, HttpStatus.CREATED);
     }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteApplication(@PathVariable String id) {
-        return applicationService.deleteApplication(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+
+    @GetMapping
+    public ResponseEntity<List<ApplicationDto>> getAllApplications() {
+        List<ApplicationDto> applications = applicationService.getAllApplications();
+        return ResponseEntity.ok(applications);
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<ApplicationDto> getApplicationById(@PathVariable String id) {
+        ApplicationDto applicationDto = applicationService.getApplicationById(id);
+        if (applicationDto != null) {
+            return ResponseEntity.ok(applicationDto);
+        }
+        return ResponseEntity.notFound().build();
+    }
+ 
 }
 

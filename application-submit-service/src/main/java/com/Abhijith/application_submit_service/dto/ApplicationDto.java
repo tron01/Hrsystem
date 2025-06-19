@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ApplicationDto {
+    private String id;
     private String jobId;
     private String pdfUrl;
 }
