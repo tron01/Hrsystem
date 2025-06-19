@@ -10,10 +10,16 @@ spring:
       server:
         webmvc:
           routes:
-            - id: job-posting-service
+            - id: job-posting-service-root
               uri: lb://job-posting-service
               predicates:
                 - Path=/jobs
+              filters:
+                - RewritePath=/jobs, /api/jobs
+
+            - id: job-posting-service
+              uri: lb://job-posting-service
+              predicates:
                 - Path=/jobs/**
               filters:
                 - RewritePath=/jobs/(?<segment>.*), /api/jobs/${segment}
