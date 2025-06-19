@@ -4,10 +4,12 @@ import com.Abhijith.auth_service.dto.AuthRequest;
 import com.Abhijith.auth_service.dto.RegisterRequest;
 import com.Abhijith.auth_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletResponse;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -29,4 +31,10 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         return authService.logout(response);
     }
+    
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        return authService.getCurrentUser();
+    }
+    
 }

@@ -3,6 +3,7 @@ package com.Abhijith.auth_service.service;
 import com.Abhijith.auth_service.dto.ApiResponse;
 import com.Abhijith.auth_service.dto.AuthRequest;
 import com.Abhijith.auth_service.dto.RegisterRequest;
+import com.Abhijith.auth_service.dto.UserInfoResponse;
 import com.Abhijith.auth_service.model.User;
 import com.Abhijith.auth_service.repository.UserRepository;
 import com.Abhijith.auth_service.util.JwtUtil;
@@ -16,9 +17,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -45,10 +48,10 @@ public class AuthService {
                                .collect(Collectors.joining(", "));
         
         log.info("-----------------------------------------");
-        log.info("Authenticated user: {}  roles: {}", username,roles);
+        log.info("Logged in user: {}  roles: {}", username,roles);
         log.info("-----------------------------------------");
         
-        String token = jwtUtil.generateToken(request.getUsername());
+        String token = jwtUtil.generateToken(username, roles);
         
         Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
@@ -91,12 +94,52 @@ public class AuthService {
     }
     
     public ResponseEntity<?> logout(HttpServletResponse response) {
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        String username = authentication.getName(); // from JWT (subject)
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String roles = authorities.stream()
+                               .map(GrantedAuthority::getAuthority)
+                               .collect(Collectors.joining(", "));
+        
+        // logout activity
+        log.info("-------------------------------------------");
+        log.info("User : {} Roles : {} :->logged out successfully", username, roles);
+        log.info("-------------------------------------------");
+        
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0); // delete immediately
         response.addCookie(cookie);
         
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new UserInfoResponse(username,roles));
     }
+
+    public ResponseEntity<?> getCurrentUser() {
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        
+        String username = authentication.getName(); // from JWT (subject)
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String roles = authorities.stream()
+                               .map(GrantedAuthority::getAuthority)
+                               .collect(Collectors.joining(", "));
+        
+       
+        log.info("----------------------------------------------");
+        log.info("Authenticated user: {}  roles: {}", username, roles);
+        log.info("------------------------------------------");
+        return ResponseEntity.ok(new UserInfoResponse(username, roles));
+        
+    }
+    
 }

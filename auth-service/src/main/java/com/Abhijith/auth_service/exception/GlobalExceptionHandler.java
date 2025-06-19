@@ -14,6 +14,12 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	//jwt token related exceptions
+	@ExceptionHandler(JwtAuthenticationException.class)
+	public ResponseEntity<?> handleJwtException(JwtAuthenticationException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(ex.getMessage()));
+	}
+	
 	@ExceptionHandler({ BadCredentialsException.class, InternalAuthenticationServiceException.class })
 	public ResponseEntity<ApiResponse> handleBadCredentials(Exception ex) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
