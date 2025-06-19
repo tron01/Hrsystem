@@ -117,7 +117,7 @@ public class AuthService {
         cookie.setMaxAge(0); // delete immediately
         response.addCookie(cookie);
         
-        return ResponseEntity.ok(new UserInfoResponse(username,roles));
+        return ResponseEntity.ok(Map.of("message", "User logout successfully"));
     }
 
     public ResponseEntity<?> getCurrentUser() {

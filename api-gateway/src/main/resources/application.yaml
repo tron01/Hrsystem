@@ -38,6 +38,19 @@ spring:
               filters:
                 - RewritePath=/applications/(?<segment>.*), /api/applications/${segment}
 
+            - id: auth-service-root
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth
+              filters:
+                - RewritePath=/auth, /api/auth
+
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth/**
+              filters:
+                - RewritePath=/auth/(?<segment>.*), /api/auth/${segment}
 
 eureka:
   client:
