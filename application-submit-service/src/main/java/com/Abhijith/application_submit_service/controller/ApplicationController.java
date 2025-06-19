@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -29,16 +30,15 @@ public class ApplicationController {
             @RequestParam("applicantName") String applicantName,
             @RequestParam("email") String email,
             @RequestParam("phone") String phone,
-            @RequestParam("resumeFile") MultipartFile resumeFile)
-    {
-        log.info("------------Received application upload------------");
-        log.info("Job ID = {}, Applicant = {} <{}>, FileName = {}",
-                jobId, applicantName, email, resumeFile.getOriginalFilename());
-        
-        ApplicationDto createdApp = applicationService.createApplication(
-                jobId, applicantId, applicantName, email, phone, resumeFile
-        );
-        return new ResponseEntity<>(createdApp, HttpStatus.CREATED);
+            @RequestParam("resumeFile") MultipartFile resumeFile) {
+            
+            log.info("------------Received application upload------------");
+            log.info("Job ID = {}, Applicant = {} <{}>, FileName = {}", jobId, applicantName, email, resumeFile.getOriginalFilename());
+            
+            ApplicationDto createdApp = applicationService.createApplication(
+                    jobId, applicantId, applicantName, email, phone, resumeFile
+            );
+            return new ResponseEntity<>(createdApp, HttpStatus.CREATED);
     }
     
     @GetMapping

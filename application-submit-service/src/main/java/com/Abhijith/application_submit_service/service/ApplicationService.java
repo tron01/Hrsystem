@@ -32,6 +32,16 @@ public class ApplicationService {
                                         String email,
                                         String phone,
                                         MultipartFile pdfFile) {
+        // Validate file content type
+        if (!"application/pdf".equalsIgnoreCase(pdfFile.getContentType())) {
+            throw new IllegalArgumentException("Only PDF files are allowed.");
+        }
+        
+        // Check for existing application
+        Optional<Application> existing = applicationRepository.findByJobIdAndApplicantId(jobId, applicantId);
+        if (existing.isPresent()) {
+            throw new IllegalStateException("You have already applied for this job.");
+        }
         
         String pdfUrl = cloudinaryService.uploadPdf(pdfFile);
         
