@@ -21,19 +21,26 @@ import java.util.List;
 public class ApplicationController {
     
     private final ApplicationService applicationService;
-    
+
     @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApplicationDto> createApplication(
             @RequestParam("jobId") String jobId,
-            @RequestParam("resumeFile") MultipartFile resumeFile) {
+            @RequestParam("applicantId") String applicantId,
+            @RequestParam("applicantName") String applicantName,
+            @RequestParam("email") String email,
+            @RequestParam("phone") String phone,
+            @RequestParam("resumeFile") MultipartFile resumeFile)
+    {
+        log.info("------------Received application upload------------");
+        log.info("Job ID = {}, Applicant = {} <{}>, FileName = {}",
+                jobId, applicantName, email, resumeFile.getOriginalFilename());
         
-        log.info("------------Received request for uploading application------------");
-        log.info(" JobId = {}, FileName = {}", jobId, resumeFile.getOriginalFilename());
-        
-        ApplicationDto createdApp = applicationService.createApplication(jobId,resumeFile);
+        ApplicationDto createdApp = applicationService.createApplication(
+                jobId, applicantId, applicantName, email, phone, resumeFile
+        );
         return new ResponseEntity<>(createdApp, HttpStatus.CREATED);
     }
-
+    
     @GetMapping
     public ResponseEntity<List<ApplicationDto>> getAllApplications() {
         List<ApplicationDto> applications = applicationService.getAllApplications();
@@ -43,10 +50,7 @@ public class ApplicationController {
     @GetMapping("/{id}")
     public ResponseEntity<ApplicationDto> getApplicationById(@PathVariable String id) {
         ApplicationDto applicationDto = applicationService.getApplicationById(id);
-        if (applicationDto != null) {
-            return ResponseEntity.ok(applicationDto);
-        }
-        return ResponseEntity.notFound().build();
+        return applicationDto != null ? ResponseEntity.ok(applicationDto) : ResponseEntity.notFound().build();
     }
  
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,27 +25,37 @@ public class ApplicationService {
     private final CloudinaryService cloudinaryService;
     private final ResumeParseProducer resumeParseProducer;
 
-  
-
-   
-    public ApplicationDto createApplication(String jobId, MultipartFile pdfFile) {
+    
+    public ApplicationDto createApplication(String jobId,
+                                        String applicantId,
+                                        String applicantName,
+                                        String email,
+                                        String phone,
+                                        MultipartFile pdfFile) {
+        
         String pdfUrl = cloudinaryService.uploadPdf(pdfFile);
         
-        Application application = new Application();
-        application.setJobId(jobId);
-        application.setPdfUrl(pdfUrl);
+        Application application = Application.builder()
+                                          .jobId(jobId)
+                                          .applicantId(applicantId)
+                                          .applicantName(applicantName)
+                                          .email(email)
+                                          .phone(phone)
+                                          .pdfUrl(pdfUrl)
+                                          .status("Submitted")
+                                          .appliedThrough("Portal")
+                                          .appliedAt(LocalDateTime.now())
+                                          .build();
         
         Application saved = applicationRepository.save(application);
         
-        // 3. Convert to DTO
-        ApplicationDto dto = new ApplicationDto();
-        BeanUtils.copyProperties(saved, dto);
-        
+        //call event trigger to parse resume
         sendResumeParseEvent(saved.getJobId(), saved.getId(), saved.getPdfUrl());
         
-        return dto;
+        return toDto(saved);
     }
 
+    //event to trigger resume parsing
     private void sendResumeParseEvent(String jobId, String applicationId, String pdfUrl) {
         
         ResumeParseEvent event = new ResumeParseEvent(
@@ -60,25 +71,23 @@ public class ApplicationService {
     }
 
 
-
     public List<ApplicationDto> getAllApplications() {
         return applicationRepository.findAll().stream()
-                       .map(application -> {
-                           ApplicationDto dto = new ApplicationDto();
-                           BeanUtils.copyProperties(application, dto);
-                           return dto;
-                       })
+                       .map(this::toDto)
                        .collect(Collectors.toList());
     }
-
+    
     public ApplicationDto getApplicationById(String id) {
         return applicationRepository.findById(id)
-                       .map(application -> {
-                           ApplicationDto dto = new ApplicationDto();
-                           BeanUtils.copyProperties(application, dto);
-                           return dto;
-                       })
+                       .map(this::toDto)
                        .orElse(null);
+    }
+
+
+    private ApplicationDto toDto(Application application) {
+        ApplicationDto dto = new ApplicationDto();
+        BeanUtils.copyProperties(application, dto);
+        return dto;
     }
     
 }
