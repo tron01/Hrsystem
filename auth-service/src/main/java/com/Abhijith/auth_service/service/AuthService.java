@@ -1,5 +1,6 @@
 package com.Abhijith.auth_service.service;
 
+import com.Abhijith.auth_service.dto.ApiResponse;
 import com.Abhijith.auth_service.dto.AuthRequest;
 import com.Abhijith.auth_service.dto.RegisterRequest;
 import com.Abhijith.auth_service.model.User;
@@ -14,10 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,28 +32,47 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     
-    public ResponseEntity<Void> login(AuthRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> login(AuthRequest request, HttpServletResponse response) {
         
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
+        
+        String username = authentication.getName();
+        
+        String roles = authentication.getAuthorities().stream()
+                               .map(GrantedAuthority::getAuthority)
+                               .collect(Collectors.joining(", "));
+        
         log.info("-----------------------------------------");
-        log.info("Authenticated user: {}", authentication.getName());
+        log.info("Authenticated user: {}  roles: {}", username,roles);
         log.info("-----------------------------------------");
+        
         String token = jwtUtil.generateToken(request.getUsername());
         
         Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
+        
+        //cookie maxAge from jwt expiration time
+        int cookieMaxAge = (int) (jwtUtil.jwtExpirationInMs / 1000);
+        cookie.setMaxAge(cookieMaxAge);
+        
         cookie.setPath("/");
         // cookie.setSecure(true); // enable in production
         response.addCookie(cookie);
         
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new ApiResponse("Login successful"));
     }
     
-    public ResponseEntity<Void> register(RegisterRequest request) {
+    public ResponseEntity<?> register(RegisterRequest request) {
+        
         if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // user already exists
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                           .body(Map.of("error", "Username already exists"));
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                           .body(Map.of("error", "Email already exists"));
         }
         
         User user = User.builder()
@@ -63,10 +85,12 @@ public class AuthService {
                             .build();
         
         userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        
+        return ResponseEntity.status(HttpStatus.CREATED)
+                       .body(Map.of("message", "User registered successfully"));
     }
     
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
