@@ -1,5 +1,6 @@
 package com.Abhijith.job_posting_service.service;
 
+import com.Abhijith.job_posting_service.dto.CompanyJobCount;
 import com.Abhijith.job_posting_service.dto.JobDto;
 import com.Abhijith.job_posting_service.model.Job;
 import com.Abhijith.job_posting_service.repository.JobRepository;
@@ -7,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,7 +49,21 @@ public class AdminJobService {
 		return false;
 	}
 	
+	public long getTotalJobCount() {
+		return jobRepository.count();
+	}
 
+	public List<Map<String, Object>> getJobCountByCompany() {
+		List<CompanyJobCount> results = jobRepository.countJobsByCompany();
+		
+		// Convert _id to "company" for cleaner response
+		return results.stream().map(item -> {
+			Map<String, Object> map = new HashMap<>();
+			map.put("company", item.get_id());
+			map.put("count", item.getCount());
+			return map;
+		}).collect(Collectors.toList());
+	}
 //------------------------------ --- Mapping methods -----------------------------------------------------
 
 	private JobDto toDto(Job job) {

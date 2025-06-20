@@ -14,19 +14,19 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 public class AdminController {
 
 	private final AdminService adminService;
 	
-	@GetMapping("/users")
+	@GetMapping("")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<List<UserResponseDto>> getAllUsers() {
 		return ResponseEntity.ok(adminService.getAllUsers());
 	}
 	
-	@GetMapping("/users/{id}")
+	@GetMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<UserResponseDto> getUserById(@PathVariable String id) {
 		return adminService.getUserById(id)
@@ -34,13 +34,13 @@ public class AdminController {
 				       .orElse(ResponseEntity.notFound().build());
 	}
 	
-	@PutMapping("/users/{id}")
+	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<UserResponseDto> updateUser(@PathVariable String id, @RequestBody User updatedUser) {
 		return ResponseEntity.ok(adminService.updateUser(id, updatedUser));
 	}
 	
-	@PatchMapping("/users/{id}/enable")
+	@PatchMapping("/{id}/enable")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<UserResponseDto> setUserEnabled(@PathVariable String id, @RequestParam boolean enabled) {
 		return ResponseEntity.ok(adminService.setUserEnabled(id, enabled));

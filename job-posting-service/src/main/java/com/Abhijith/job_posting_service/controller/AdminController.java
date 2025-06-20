@@ -10,23 +10,24 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/jobs")
 @RequiredArgsConstructor
 public class AdminController {
 
 	private final AdminJobService jobService;
 
-	@GetMapping("/jobs")
+	@GetMapping("")
 	@PreAuthorize("hasRole('ADMIN')")
 	public List<JobDto> getAllJobs() {
 		return jobService.getAllJobs();
 	}
 	
-	@GetMapping("/jobs/{id}")
+	@GetMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<JobDto> getJobById(@PathVariable String id) {
 		return jobService.getJobById(id)
@@ -34,7 +35,7 @@ public class AdminController {
 				       .orElse(ResponseEntity.notFound().build());
 	}
 
-	@PutMapping("/jobs/{id}")
+	@PutMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> updateJob(@PathVariable String id, @RequestBody JobDto jobDto) {
 		Optional<JobDto> updated = jobService.updateJob(id, jobDto);
@@ -48,7 +49,7 @@ public class AdminController {
 	}
 
 	
-	@DeleteMapping("/jobs/{id}")
+	@DeleteMapping("/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteJob(@PathVariable String id) {
 		boolean deleted = jobService.deleteJob(id);
@@ -60,4 +61,14 @@ public class AdminController {
 		}
 	}
 
+	@GetMapping("/count")
+	public ResponseEntity<Map<String, Long>> getTotalJobCount() {
+		Map<String, Long> response = Map.of("totalJobs", jobService.getTotalJobCount());
+		return ResponseEntity.ok(response);
+	}
+	@GetMapping("/count-by-company")
+	public ResponseEntity<List<Map<String, Object>>> getJobCountByCompany() {
+		return ResponseEntity.ok(jobService.getJobCountByCompany());
+	}
+	
 }

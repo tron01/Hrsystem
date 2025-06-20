@@ -54,20 +54,33 @@ spring:
               filters:
                 - RewritePath=/auth/(?<segment>.*), /api/auth/${segment}
 
+            - id: admin-service-root
+              uri: lb://auth-service
+              predicates:
+                - Path=/admin/users
+              filters:
+                - RewritePath=/admin/users, /api/admin/users
+
             - id: admin-service
               uri: lb://auth-service
               predicates:
-                - Path=/admin/**
+                - Path=/admin/users/**
               filters:
-                - RewritePath=/admin/(?<segment>.*), /api/admin/${segment}
+                - RewritePath=/admin/users/(?<segment>.*), /api/admin/users/${segment}
+
+            - id: job-posting-admin-root
+              uri: lb://job-posting-service
+              predicates:
+                - Path=/admin/jobs
+              filters:
+                - RewritePath=/admin/jobs, /api/admin/jobs
 
             - id: job-posting-admin
               uri: lb://job-posting-service
               predicates:
-                - Path=/admin/job/**
+                - Path=/admin/jobs/**
               filters:
-                - RewritePath=/admin/job/(?<segment>.*), /api/admin/${segment}
-
+                - RewritePath=/admin/jobs/(?<segment>.*), /api/admin/jobs/${segment}
 
 eureka:
   client:
