@@ -40,3 +40,6 @@ cloudinary:
 kafka:
   topics:
     resume-parse: resume-parse-topic
+
+jwt:
+  secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf

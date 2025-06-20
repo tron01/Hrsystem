@@ -1,6 +1,7 @@
 package com.Abhijith.application_submit_service.exception;
 
 
+import com.Abhijith.application_submit_service.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,14 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+
+	//jwt token related exceptions
+	@ExceptionHandler(JwtAuthenticationException.class)
+	public ResponseEntity<?> handleJwtException(JwtAuthenticationException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(ex.getMessage()));
+	}
+
 
 	@ExceptionHandler(IllegalStateException.class)
 	public ResponseEntity<Map<String, String>> handleIllegalState(IllegalStateException ex) {
