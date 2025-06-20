@@ -9,6 +9,8 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -47,6 +49,12 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.badRequest().body(
 				new ApiResponse("Invalid JSON format: " + ex.getMostSpecificCause().getMessage())
 		);
+	}
+	
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ApiResponse> handleNotFoundException(NoResourceFoundException ex) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				       .body(new ApiResponse("Resource not found: " + ex.getMessage()));
 	}
 	
 }

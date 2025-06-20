@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
 
@@ -51,5 +52,10 @@ public class GlobalExceptionHandler {
 				       .body(Map.of("error", ex.getMessage()));
 	}
 	
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ApiResponse> handleNotFoundException(NoResourceFoundException ex) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				       .body(new ApiResponse("Resource not found: " + ex.getMessage()));
+	}
 	
 }

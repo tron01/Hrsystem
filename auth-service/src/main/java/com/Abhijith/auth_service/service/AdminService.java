@@ -2,12 +2,15 @@ package com.Abhijith.auth_service.service;
 
 
 import com.Abhijith.auth_service.dto.UserResponseDto;
+import com.Abhijith.auth_service.dto.UserSummaryDto;
 import com.Abhijith.auth_service.model.User;
 import com.Abhijith.auth_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +47,20 @@ public class AdminService {
 					       return toDto(userRepository.save(user));
 				       })
 				       .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+	}
+
+	public UserSummaryDto getUserSummary() {
+		List<User> users = userRepository.findAll();
+		
+		long totalUsers = users.size();
+		
+		Map<String, Long> userCountByRole = users.stream()
+				                                    .collect(Collectors.groupingBy(User::getRole, Collectors.counting()));
+		
+		return UserSummaryDto.builder()
+				       .totalUsers(totalUsers)
+				       .userCountByRole(userCountByRole)
+				       .build();
 	}
 
 

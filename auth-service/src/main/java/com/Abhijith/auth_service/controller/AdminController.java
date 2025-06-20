@@ -1,6 +1,7 @@
 package com.Abhijith.auth_service.controller;
 
 import com.Abhijith.auth_service.dto.UserResponseDto;
+import com.Abhijith.auth_service.dto.UserSummaryDto;
 import com.Abhijith.auth_service.model.User;
 import com.Abhijith.auth_service.service.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +45,12 @@ public class AdminController {
 	public ResponseEntity<UserResponseDto> setUserEnabled(@PathVariable String id, @RequestParam boolean enabled) {
 		return ResponseEntity.ok(adminService.setUserEnabled(id, enabled));
 	}
+
+	@GetMapping("/user-summary")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<UserSummaryDto> getUserSummary() {
+		return ResponseEntity.ok(adminService.getUserSummary());
+	}
+	
 	
 }
