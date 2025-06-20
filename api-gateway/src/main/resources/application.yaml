@@ -61,6 +61,13 @@ spring:
               filters:
                 - RewritePath=/admin/(?<segment>.*), /api/admin/${segment}
 
+            - id: job-posting-admin
+              uri: lb://job-posting-service
+              predicates:
+                - Path=/admin/job/**
+              filters:
+                - RewritePath=/admin/job/(?<segment>.*), /api/admin/${segment}
+
 
 eureka:
   client:

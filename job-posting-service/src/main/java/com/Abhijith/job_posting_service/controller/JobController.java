@@ -17,31 +17,18 @@ public class JobController {
 
     private final JobService jobService;
     
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<JobDto> updateJob(@PathVariable String id, @RequestBody JobDto jobDto) {
-        return jobService.updateJob(id, jobDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteJob(@PathVariable String id) {
-        return jobService.deleteJob(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-    }
 // --------------------------------logged in Users jobs methods--------------------------------------------------------//
 
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public List<JobDto> getAllJobs() {
+    @PreAuthorize("hasRole('USER')")
+    public List<JobDto> getAllJobsForUsers() {
         return jobService.getAllJobs();
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<JobDto> getJobById(@PathVariable String id) {
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<JobDto> getJobByIdForUsers(@PathVariable String id) {
         return jobService.getJobById(id)
                        .map(ResponseEntity::ok)
                        .orElse(ResponseEntity.notFound().build());

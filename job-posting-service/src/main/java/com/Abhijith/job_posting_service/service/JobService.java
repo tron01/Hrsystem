@@ -20,33 +20,25 @@ import java.util.stream.Collectors;
 public class JobService {
     private final JobRepository jobRepository;
 
+    public List<JobDto> getAllJobsForUser() {
+        return jobRepository.findAll().stream()
+                       .filter(Job::isActive) // Filter only active jobs
+                       .map(this::toDto)
+                       .collect(Collectors.toList());
+    }
+
     public List<JobDto> getAllJobs() {
         return jobRepository.findAll().stream()
                        .map(this::toDto)
                        .collect(Collectors.toList());
     }
-    
+
     public Optional<JobDto> getJobById(String id) {
         return jobRepository.findById(id)
                        .map(this::toDto);
     }
     
-    public Optional<JobDto> updateJob(String id, JobDto jobDto) {
-        return jobRepository.findById(id).map(existing -> {
-            // Only copy updateable fields (skip id, postedDate, postedBy)
-            BeanUtils.copyProperties(jobDto, existing,
-                    "id", "postedDate", "postedBy");
-            return toDto(jobRepository.save(existing));
-        });
-    }
-    
-    public boolean deleteJob(String id) {
-        if (jobRepository.existsById(id)) {
-            jobRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
+  
 
 // --------------------------------logged in HR  jobs methods--------------------------------------------------------//
 
