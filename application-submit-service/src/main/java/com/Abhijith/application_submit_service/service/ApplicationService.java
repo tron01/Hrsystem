@@ -78,20 +78,7 @@ public class ApplicationService {
         
         resumeParseProducer.sendResumeParseEvent(event);
     }
-
-
-    public List<ApplicationDto> getAllApplications() {
-        return applicationRepository.findAll().stream()
-                       .map(this::toDto)
-                       .collect(Collectors.toList());
-    }
     
-    public ApplicationDto getApplicationById(String id) {
-        return applicationRepository.findById(id)
-                       .map(this::toDto)
-                       .orElse(null);
-    }
-
 
     private ApplicationDto toDto(Application application) {
         ApplicationDto dto = new ApplicationDto();

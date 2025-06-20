@@ -26,20 +26,7 @@ public class ApplicationController {
     
     private final ApplicationService applicationService;
 
-    
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<ApplicationDto>> getAllApplications() {
-        List<ApplicationDto> applications = applicationService.getAllApplications();
-        return ResponseEntity.ok(applications);
-    }
-    
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApplicationDto> getApplicationById(@PathVariable String id) {
-        ApplicationDto applicationDto = applicationService.getApplicationById(id);
-        return applicationDto != null ? ResponseEntity.ok(applicationDto) : ResponseEntity.notFound().build();
-    }
+  
 
 // --------------------------------logged in User jobs methods--------------------------------------------------------//
 

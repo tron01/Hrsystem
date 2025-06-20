@@ -82,6 +82,21 @@ spring:
               filters:
                 - RewritePath=/admin/jobs/(?<segment>.*), /api/admin/jobs/${segment}
 
+            - id: admin-application-service-root
+              uri: lb://application-submit-service
+              predicates:
+                - Path=/admin/applications
+              filters:
+                - RewritePath=/admin/applications, /api/admin/applications
+
+            - id: admin-application-service
+              uri: lb://application-submit-service
+              predicates:
+                - Path=/admin/applications/**
+              filters:
+                - RewritePath=/admin/applications/(?<segment>.*), /api/admin/applications/${segment}
+
+
 eureka:
   client:
     register-with-eureka: true
