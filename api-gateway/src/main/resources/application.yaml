@@ -73,3 +73,7 @@ management:
   endpoint:
     gateway:
       enabled: true
+
+jwt:
+  secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf
+  expiration: 3600000 # 1 hour in ms
