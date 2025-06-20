@@ -40,8 +40,8 @@ public class ApplicationController {
         ApplicationDto applicationDto = applicationService.getApplicationById(id);
         return applicationDto != null ? ResponseEntity.ok(applicationDto) : ResponseEntity.notFound().build();
     }
-    
-    // logged in User can view (list of , by id), update their own application
+
+// --------------------------------logged in User jobs methods--------------------------------------------------------//
 
 
     @PostMapping(path = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -94,7 +94,7 @@ public class ApplicationController {
 
 
 
-    // logged in Hr (view list , byid) applications for jobs  posted
+// --------------------------------logged in HR jobs methods--------------------------------------------------------//
 
     @GetMapping("/hr")
     @PreAuthorize("hasRole('HR')")

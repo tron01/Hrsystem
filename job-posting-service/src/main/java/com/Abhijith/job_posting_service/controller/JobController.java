@@ -16,20 +16,7 @@ import java.util.List;
 public class JobController {
 
     private final JobService jobService;
-
-    @GetMapping
-    @PreAuthorize("isAuthenticated()")
-    public List<JobDto> getAllJobs() {
-        return jobService.getAllJobs();
-    }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<JobDto> getJobById(@PathVariable String id) {
-        return jobService.getJobById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+    
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<JobDto> updateJob(@PathVariable String id, @RequestBody JobDto jobDto) {
@@ -43,22 +30,38 @@ public class JobController {
     public ResponseEntity<Void> deleteJob(@PathVariable String id) {
         return jobService.deleteJob(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
+// --------------------------------logged in Users jobs methods--------------------------------------------------------//
+
+
+    @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    public List<JobDto> getAllJobs() {
+        return jobService.getAllJobs();
+    }
     
-    // --------------------------------logged in HR jobs methods--------------------------------------------------------//
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<JobDto> getJobById(@PathVariable String id) {
+        return jobService.getJobById(id)
+                       .map(ResponseEntity::ok)
+                       .orElse(ResponseEntity.notFound().build());
+    }
+
+// --------------------------------logged in HR jobs methods--------------------------------------------------------//
     
-    @PostMapping
+    @PostMapping("/hr")
     @PreAuthorize("hasRole('HR')")
     public ResponseEntity<JobDto> createJob(@RequestBody CreateJobDto createJobDto) {
         JobDto savedJob = jobService.createJob(createJobDto);
         return ResponseEntity.ok(savedJob);
     }
-    @GetMapping("/my")
+    @GetMapping("/hr")
     @PreAuthorize("hasRole('HR')")
     public ResponseEntity<List<JobDto>> getMyJobs() {
         return ResponseEntity.ok(jobService.getAllJobsByCurrentUser());
     }
     
-    @GetMapping("/my/{id}")
+    @GetMapping("/hr/{id}")
     @PreAuthorize("hasRole('HR')")
     public ResponseEntity<JobDto> getMyJobById(@PathVariable String id) {
         return jobService.getJobByIdForCurrentUser(id)
@@ -66,7 +69,7 @@ public class JobController {
                        .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/my/{id}")
+    @PutMapping("/hr/{id}")
     @PreAuthorize("hasRole('HR')")
     public ResponseEntity<JobDto> updateMyJob(@PathVariable String id, @RequestBody JobDto jobDto) {
         return jobService.updateJobByCurrentUser(id, jobDto)
@@ -74,7 +77,7 @@ public class JobController {
                        .orElse(ResponseEntity.status(403).build()); // Forbidden if not owner
     }
     
-    @DeleteMapping("/my/{id}")
+    @DeleteMapping("/hr/{id}")
     @PreAuthorize("hasRole('HR')")
     public ResponseEntity<Void> deleteMyJob(@PathVariable String id) {
         boolean deleted = jobService.deleteJobByCurrentUser(id);
