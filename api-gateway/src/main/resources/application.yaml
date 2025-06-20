@@ -54,6 +54,14 @@ spring:
               filters:
                 - RewritePath=/auth/(?<segment>.*), /api/auth/${segment}
 
+            - id: admin-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/admin/**
+              filters:
+                - RewritePath=/admin/(?<segment>.*), /api/admin/${segment}
+
+
 eureka:
   client:
     register-with-eureka: true
