@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,14 @@ public class AuthService {
     
     public ResponseEntity<?> register(RegisterRequest request) {
         
+        List<String> allowedRoles = List.of("USER", "HR");
+        String requestedRole = request.getRole().toUpperCase();
+        
+        if (!allowedRoles.contains(requestedRole)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                           .body(Map.of("error", "Invalid role"));
+        }
+        
         if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                            .body(Map.of("error", "Username already exists"));
@@ -82,7 +91,7 @@ public class AuthService {
                             .username(request.getUsername())
                             .email(request.getEmail())
                             .password(passwordEncoder.encode(request.getPassword()))
-                            .role("USER")
+                            .role(requestedRole)
                             .enabled(true)
                             .createdAt(LocalDateTime.now())
                             .build();
