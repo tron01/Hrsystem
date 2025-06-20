@@ -24,7 +24,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticat
 			.cors(Customizer.withDefaults())
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
-				 .requestMatchers("/actuator/**").hasRole("ADMIN")  // actuator only for ADMIN
+				 .requestMatchers("/actuator/**").permitAll() // Allow actuator endpoints
 				 .anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

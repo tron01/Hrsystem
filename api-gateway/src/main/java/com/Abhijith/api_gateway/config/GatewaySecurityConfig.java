@@ -26,8 +26,8 @@ public class GatewaySecurityConfig {
 				.csrf(AbstractHttpConfigurer::disable)
 				.cors(Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth
-				    .requestMatchers("/auth/**").permitAll()
-					.requestMatchers("/actuator/**", "/routes").hasRole("ADMIN") // Only ADMIN
+				    .requestMatchers("/auth/**","/actuator/**").permitAll()
+					.requestMatchers( "/routes").hasRole("ADMIN") // Only ADMIN
 					.anyRequest().authenticated())
 				.sessionManagement(session -> session
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -1,4 +1,9 @@
+server:
+  port: 8082
+
 spring:
+  application:
+    name: application-submit-service
   servlet:
     multipart:
       enabled: true
@@ -13,14 +18,12 @@ spring:
       spring.json.add.type.headers: false
     template:
       default-topic: resume-parse-topic
-  application:
-    name: application-submit-service
+
   data:
     mongodb:
       uri: mongodb://localhost:27017/applicationdb
 
-server:
-  port: 8082
+
 
 
 eureka:

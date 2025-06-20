@@ -7,5 +7,6 @@
     <file url="file://$PROJECT_DIR$/eureka-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/job-posting-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/resume-parser-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spring-boot-admin/src/main/java" charset="UTF-8" />
   </component>
 </project>
