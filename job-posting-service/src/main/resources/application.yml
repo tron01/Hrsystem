@@ -17,3 +17,5 @@ eureka:
   instance:
     prefer-ip-address: true
 
+jwt:
+  secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf
