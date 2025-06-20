@@ -47,6 +47,9 @@ protected void doFilterInternal(HttpServletRequest request,
 					);
 					
 					SecurityContextHolder.getContext().setAuthentication(authentication);
+					log.info("--------------------------------------------------------------");
+					log.info("Authenticated user: {}, Roles: {}", username, roles);
+					log.info("---------------------------------------------------------------");
 					
 				} catch (JwtAuthenticationException e) {
 					log.warn("JWT validation failed: {}", e.getMessage());

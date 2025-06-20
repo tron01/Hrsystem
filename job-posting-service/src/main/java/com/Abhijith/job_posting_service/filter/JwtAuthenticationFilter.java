@@ -69,6 +69,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(username, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.info("--------------------------------------------------------------");
+                    log.info("Authenticated user: {}, Roles: {}", username, roles);
+                    log.info("---------------------------------------------------------------");
+                    
                 } else {
                     log.warn("Invalid or expired JWT for user: {}", username);
                 }
