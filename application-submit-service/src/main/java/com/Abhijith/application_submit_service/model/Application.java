@@ -15,6 +15,7 @@ public class Application {
     @Id
     private String id;
     
+    private String postedBy;
     private String jobId;          // ID of the job being applied to
     private String applicantId;    // ID of the user/student applying
     private String applicantName;

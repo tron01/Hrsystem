@@ -44,6 +44,12 @@ public class GlobalExceptionHandler {
 				       .body(Map.of("error", "Unexpected error.: " + ex.getMessage()));
 		
 	}
+
+	@ExceptionHandler(IllegalAccessException.class)
+	public ResponseEntity<Map<String, String>> handleIllegalAccess(IllegalAccessException ex) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				       .body(Map.of("error", ex.getMessage()));
+	}
 	
 	
 }

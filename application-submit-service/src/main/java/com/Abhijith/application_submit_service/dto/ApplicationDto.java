@@ -12,6 +12,7 @@ public class ApplicationDto {
 
     private String id;
     private String jobId;
+    private String postedBy;
     private String applicantId;
     private String applicantName;
     private String email;
