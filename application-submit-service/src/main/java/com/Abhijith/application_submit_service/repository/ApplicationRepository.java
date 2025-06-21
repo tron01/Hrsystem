@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public interface ApplicationRepository extends MongoRepository<Application, String> {
 
-	Optional<Application> findByJobIdAndApplicantId(String jobId, String applicantId);
 	List<Application> findByApplicantId(String applicantId);
 	Optional<Application> findByIdAndApplicantId(String id, String applicantId);
 	List<Application> findByPostedBy(String hrId);
+	boolean existsByJobIdAndApplicantId(String jobId, String applicantId);
 	
 }
 

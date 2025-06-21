@@ -1,12 +1,13 @@
 package com.Abhijith.application_submit_service.service;
 
+import com.Abhijith.application_submit_service.client.JobFeignClient;
 import com.Abhijith.application_submit_service.dto.ApplicationDto;
+import com.Abhijith.application_submit_service.dto.JobDto;
 import com.Abhijith.application_submit_service.kafka.event.ResumeParseEvent;
 import com.Abhijith.application_submit_service.kafka.producer.ResumeParseProducer;
 import com.Abhijith.application_submit_service.model.Application;
-import com.Abhijith.application_submit_service.model.Job;
 import com.Abhijith.application_submit_service.repository.ApplicationRepository;
-import com.Abhijith.application_submit_service.repository.JobRepository;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final CloudinaryService cloudinaryService;
     private final ResumeParseProducer resumeParseProducer;
-    private final JobRepository jobRepository;
+    private  final JobFeignClient jobFeignClient;
     
     public ApplicationDto createApplication(String jobId,
                                         String applicantId,
@@ -43,13 +44,21 @@ public class ApplicationService {
             throw new IllegalArgumentException("Job ID cannot be null or empty.");
         }
         
-        // Check if job exists and is active
-        Job job = jobRepository.findByIdAndActiveTrue(jobId)
-                          .orElseThrow(() -> new IllegalArgumentException("Invalid or inactive Job ID."));
+        //  Feign client to fetch job details
+        JobDto jobDto;
+        try {
+            jobDto = jobFeignClient.getJobByIdForUsers(jobId);
+        } catch (FeignException.NotFound e) {
+            throw new IllegalArgumentException("Invalid Job ID.");
+        }
         
-        // Check for existing application
-        Optional<Application> existing = applicationRepository.findByJobIdAndApplicantId(jobId, applicantId);
-        if (existing.isPresent()) {
+        if (!jobDto.isActive()) {
+            throw new IllegalArgumentException("Job is not active.");
+        }
+        
+        // Check if application already exists for this job and applicant
+        boolean alreadyApplied = applicationRepository.existsByJobIdAndApplicantId(jobDto.getId(), applicantId);
+        if (alreadyApplied) {
             throw new IllegalStateException("You have already applied for this job.");
         }
         
@@ -59,7 +68,7 @@ public class ApplicationService {
                                           .jobId(jobId)
                                           .applicantId(applicantId)
                                           .applicantName(applicantName)
-                                          .postedBy(job.getPostedBy())
+                                          .postedBy(jobDto.getPostedBy())
                                           .email(email)
                                           .phone(phone)
                                           .pdfUrl(pdfUrl)
