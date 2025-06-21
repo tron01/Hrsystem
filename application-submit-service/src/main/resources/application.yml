@@ -46,3 +46,12 @@ kafka:
 
 jwt:
   secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info

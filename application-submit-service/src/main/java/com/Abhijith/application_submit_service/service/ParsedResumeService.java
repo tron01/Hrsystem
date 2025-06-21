@@ -27,6 +27,11 @@ public class ParsedResumeService {
         return parsedResumeRepository.findById(id).map(this::toDto);
     }
 
+    public ParsedResume getParsedResumeByApplicationId(String applicationId) {
+        return parsedResumeRepository.findByApplicationId(applicationId)
+                       .orElseThrow(() -> new RuntimeException("Parsed resume not found for application ID: " + applicationId));
+    }
+
     private ParsedResumeDto toDto(ParsedResume entity) {
         ParsedResumeDto dto = new ParsedResumeDto();
         BeanUtils.copyProperties(entity, dto);

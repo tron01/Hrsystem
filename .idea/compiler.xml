@@ -11,7 +11,7 @@
         <module name="eureka-server" />
         <module name="spring-boot-admin" />
       </profile>
-      <profile name="Annotation profile for resume-parser-service" enabled="true">
+      <profile name="Annotation profile for job-posting-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />

@@ -4,7 +4,9 @@ import com.Abhijith.application_submit_service.dto.ApplicationDto;
 import com.Abhijith.application_submit_service.kafka.event.ResumeParseEvent;
 import com.Abhijith.application_submit_service.kafka.producer.ResumeParseProducer;
 import com.Abhijith.application_submit_service.model.Application;
+import com.Abhijith.application_submit_service.model.Job;
 import com.Abhijith.application_submit_service.repository.ApplicationRepository;
+import com.Abhijith.application_submit_service.repository.JobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final CloudinaryService cloudinaryService;
     private final ResumeParseProducer resumeParseProducer;
-
+    private final JobRepository jobRepository;
     
     public ApplicationDto createApplication(String jobId,
                                         String applicantId,
@@ -35,6 +37,15 @@ public class ApplicationService {
         if (!"application/pdf".equalsIgnoreCase(pdfFile.getContentType())) {
             throw new IllegalArgumentException("Only PDF files are allowed.");
         }
+        
+        // Validate jobid
+        if (jobId == null || jobId.isEmpty()) {
+            throw new IllegalArgumentException("Job ID cannot be null or empty.");
+        }
+        
+        // Check if job exists and is active
+        Job job = jobRepository.findByIdAndActiveTrue(jobId)
+                          .orElseThrow(() -> new IllegalArgumentException("Invalid or inactive Job ID."));
         
         // Check for existing application
         Optional<Application> existing = applicationRepository.findByJobIdAndApplicantId(jobId, applicantId);
@@ -48,6 +59,7 @@ public class ApplicationService {
                                           .jobId(jobId)
                                           .applicantId(applicantId)
                                           .applicantName(applicantName)
+                                          .postedBy(job.getPostedBy())
                                           .email(email)
                                           .phone(phone)
                                           .pdfUrl(pdfUrl)

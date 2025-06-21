@@ -1,7 +1,9 @@
 package com.Abhijith.application_submit_service.controller;
 
 import com.Abhijith.application_submit_service.dto.ApplicationDto;
+import com.Abhijith.application_submit_service.model.ParsedResume;
 import com.Abhijith.application_submit_service.service.ApplicationService;
+import com.Abhijith.application_submit_service.service.ParsedResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +27,7 @@ import java.util.Map;
 public class ApplicationController {
     
     private final ApplicationService applicationService;
-
+    private final ParsedResumeService parsedResumeService;
   
 
 // --------------------------------logged in User jobs methods--------------------------------------------------------//
@@ -88,6 +90,12 @@ public class ApplicationController {
     public ResponseEntity<List<ApplicationDto>> getApplicationsForHr() {
         String hrUsername = getLoggedInUsername();
         return ResponseEntity.ok(applicationService.getApplicationsForHrByUsername(hrUsername));
+    }
+
+    @GetMapping("/hr/{id}/parsed-resume")
+    @PreAuthorize("hasRole('HR')")
+    public ParsedResume getByApplicationId(@PathVariable String id) {
+        return parsedResumeService.getParsedResumeByApplicationId(id);
     }
     
     @GetMapping("/hr/{id}")

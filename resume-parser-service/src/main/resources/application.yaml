@@ -30,3 +30,10 @@ eureka:
 kafka:
   topics:
     resume-parse: resume-parse-topic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+

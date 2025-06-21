@@ -89,12 +89,6 @@ spring:
               filters:
                 - RewritePath=/admin/applications, /api/admin/applications
 
-            - id: admin-application-service
-              uri: lb://application-submit-service
-              predicates:
-                - Path=/admin/applications/**
-              filters:
-                - RewritePath=/admin/applications/(?<segment>.*), /api/admin/applications/${segment}
 
 
 eureka:
@@ -116,7 +110,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include:
+          - health
+          - info
+
   endpoint:
     gateway:
       enabled: true
