@@ -27,6 +27,7 @@ public class GatewaySecurityConfig {
 				.cors(Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth
 				    .requestMatchers("/auth/**","/actuator/**").permitAll()
+					.requestMatchers("/jobs", "/jobs/**").permitAll() // public endpoints
 					.requestMatchers( "/routes").hasRole("ADMIN") // Only ADMIN
 					.anyRequest().authenticated())
 				.sessionManagement(session -> session

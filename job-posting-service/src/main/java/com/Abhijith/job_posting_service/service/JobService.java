@@ -27,14 +27,10 @@ public class JobService {
                        .collect(Collectors.toList());
     }
 
-    public List<JobDto> getAllJobs() {
-        return jobRepository.findAll().stream()
-                       .map(this::toDto)
-                       .collect(Collectors.toList());
-    }
 
     public Optional<JobDto> getJobById(String id) {
         return jobRepository.findById(id)
+                       .filter(Job::isActive)
                        .map(this::toDto);
     }
     

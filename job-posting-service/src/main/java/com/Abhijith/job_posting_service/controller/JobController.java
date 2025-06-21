@@ -21,13 +21,11 @@ public class JobController {
 
 
     @GetMapping
-    @PreAuthorize("hasRole('USER')")
     public List<JobDto> getAllJobsForUsers() {
-        return jobService.getAllJobs();
+        return jobService.getAllJobsForUser();
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<JobDto> getJobByIdForUsers(@PathVariable String id) {
         return jobService.getJobById(id)
                        .map(ResponseEntity::ok)

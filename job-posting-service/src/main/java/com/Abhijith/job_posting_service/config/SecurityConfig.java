@@ -25,7 +25,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticat
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				 .requestMatchers("/actuator/**").permitAll() // Allow actuator endpoints
-				 .anyRequest().authenticated()
+				 .requestMatchers("/api/jobs", "/api/jobs/*").permitAll()
+					.anyRequest().authenticated()
 			)
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 	
