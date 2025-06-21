@@ -98,13 +98,105 @@ This command brings up:
    - When a user submits a job application, an event is published to Kafka
    - The **Resume Parser Service** listens for this event and automatically processes the uploaded resume
 
+
+
+
+
+---
+## Controller Endpoints (Grouped by Role)
+
+
+### 👤 USER Endpoints (`ROLE_USER`)
+
+#### AuthController – `/api/auth`
+| Method | Path        | Description                    |
+| ------ | ----------- | ------------------------------ |
+| POST   | `/login`    | Login with credentials         |
+| POST   | `/register` | Register a new user            |
+| POST   | `/logout`   | Logout user                    |
+| GET    | `/me`       | Get current authenticated user |
+
+#### JobController – `/api/jobs`
+| Method | Path    | Description   |
+| ------ | ------- | ------------- |
+| GET    | `/`     | View all jobs |
+| GET    | `/{id}` | View job by ID|
+
+#### ApplicationController – `/api/applications`
+| Method | Path       | Description                           |
+| ------ | ---------- | ------------------------------------- |
+| POST   | `/submit`  | Submit application with resume upload |
+| GET    | `/my`      | Get own applications                  |
+| GET    | `/my/{id}` | Get specific application by ID        |
+| PUT    | `/{id}`    | Update phone or resume                |
+
 ---
 
+### 🧑‍💼 HR Endpoints (`ROLE_HR`)
+
+#### JobController – `/api/jobs/hr`
+| Method | Path         | Description                   |
+| ------ | ------------ | ----------------------------- |
+| POST   | `/hr`        | Create a new job posting      |
+| GET    | `/hr`        | Get all jobs posted by HR     |
+| GET    | `/hr/{id}`   | Get specific job posted by HR |
+| PUT    | `/hr/{id}`   | Update job by HR              |
+| DELETE | `/hr/{id}`   | Delete job by HR              |
+
+#### ApplicationController – `/api/applications/hr`
+| Method | Path                     | Description                         |
+| ------ | ------------------------ | ----------------------------------- |
+| GET    | `/hr`                    | Get applications for HR's job posts |
+| GET    | `/hr/{id}`               | Get specific application by ID      |
+| PATCH  | `/hr/{id}/status`        | Update application status           |
+| GET    | `/hr/{id}/parsed-resume` | Get parsed resume for application   |
+
+---
+
+### 🛠️ ADMIN Endpoints (`ROLE_ADMIN`)
+
+#### AdminController (Users) – `/api/admin/users`
+| Method | Path                        | Description                        |
+| ------ | --------------------------- | ---------------------------------- |
+| GET    | `/`                         | Get all users                      |
+| GET    | `/{id}`                     | Get user by ID                     |
+| PUT    | `/{id}`                     | Update user                        |
+| PATCH  | `/{id}/enable?enabled=true` | Enable/disable user account        |
+| GET    | `/user-summary`             | Get summary statistics about users |
+
+#### AdminController (Jobs) – `/api/admin/jobs`
+| Method | Path                | Description                  |
+| ------ | ------------------- | ---------------------------- |
+| GET    | `/`                 | Get all jobs                 |
+| GET    | `/{id}`             | Get job by ID                |
+| PUT    | `/{id}`             | Update any job               |
+| DELETE | `/{id}`             | Delete job                   |
+| GET    | `/count`            | Total job count              |
+| GET    | `/count-by-company` | Job count grouped by company |
+
+#### AdminController (Applications) – `/api/admin/applications`
+| Method | Path     | Description                 |
+| ------ | -------- | --------------------------- |
+| GET    | `/`      | Get all applications        |
+| GET    | `/{id}`  | Get application by ID       |
+| GET    | `/count` | Get total application count |
+
+---
+
+#### 📄 ParsedResumeController – `/api/applications/parsed-resumes`
+
+| Method | Path    | Description             |
+| ------ | ------- | ----------------------- |
+| GET    | `/`     | Get all parsed resumes  |
+| GET    | `/{id}` | Get parsed resume by ID |
+
+
+---
 ## Running the Project
 
 ### Prerequisites
 
-- Java 17+
+- Java 21+
 - Maven
 - Docker
 - IntelliJ IDEA or similar IDE
