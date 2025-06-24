@@ -1,0 +1,55 @@
+server:
+  port: 0 # Dynamic port for multi-instance or Docker
+
+spring:
+  application:
+    name: resume-parser-service
+  kafka:
+    bootstrap-servers: kafka1:9092,kafka2:9092
+    consumer:
+      group-id: resume-parser-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.value.default.type: com.Abhijith.resume_parser_service.kafka.event.ResumeParseEvent
+        spring.json.trusted.packages: "com.Abhijith.resume_parser_service.kafka.event"
+  data:
+    mongodb:
+      uri: mongodb://mongo:27017/applicationdb
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+    metadata-map:
+      instanceId: ${spring.application.name}:${random.value}
+
+cloudinary:
+  cloud-name: dutvipg4f
+  api-key: 314876564298642
+  api-secret: KAoHzfGUhCCjjdNKlNlb_cDDWcY
+
+kafka:
+  topics:
+    resume-parse: resume-parse-topic
+
+jwt:
+  secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true

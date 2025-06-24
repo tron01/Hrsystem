@@ -1,0 +1,41 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: resume-parser-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.value.default.type: com.Abhijith.resume_parser_service.kafka.event.ResumeParseEvent
+        spring.json.trusted.packages: "com.Abhijith.resume_parser_service.kafka.event"
+  application:
+    name: resume-parser-service
+  data:
+    mongodb:
+      uri: mongodb://mongo:27017/applicationdb
+
+server:
+  port: 0 # Use random port for Docker
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    instance-info-replication-interval-seconds: 10
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
+    metadata-map:
+      instanceId: ${spring.application.name}:${random.value}
+
+kafka:
+  topics:
+    resume-parse: resume-parse-topic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

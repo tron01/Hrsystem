@@ -1,0 +1,110 @@
+spring:
+  application:
+    name: api-gateway
+  servlet:
+    multipart:
+      enabled: true
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: job-posting-service-root
+              uri: lb://job-posting-service
+              predicates:
+                - Path=/jobs
+              filters:
+                - RewritePath=/jobs, /api/jobs
+
+            - id: job-posting-service
+              uri: lb://job-posting-service
+              predicates:
+                - Path=/jobs/**
+              filters:
+                - RewritePath=/jobs/(?<segment>.*), /api/jobs/${segment}
+
+            - id: application-submit-service-root
+              uri: lb://application-submit-service
+              predicates:
+                - Path=/applications
+              filters:
+                - RewritePath=/applications, /api/applications
+
+            - id: application-submit-service
+              uri: lb://application-submit-service
+              predicates:
+                - Path=/applications/**
+              filters:
+                - RewritePath=/applications/(?<segment>.*), /api/applications/${segment}
+
+            - id: resume-parser-service-root
+              uri: lb://resume-parser-service
+              predicates:
+                - Path=/resumes
+              filters:
+                - RewritePath=/resumes, /api/resumes
+
+            - id: resume-parser-service
+              uri: lb://resume-parser-service
+              predicates:
+                - Path=/resumes/**
+              filters:
+                - RewritePath=/resumes/(?<segment>.*), /api/resumes/${segment}
+
+            - id: auth-service-root
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth
+              filters:
+                - RewritePath=/auth, /api/auth
+
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/auth/**
+              filters:
+                - RewritePath=/auth/(?<segment>.*), /api/auth/${segment}
+
+            - id: spring-boot-admin-root
+              uri: lb://spring-boot-admin
+              predicates:
+                - Path=/admin
+              filters:
+                - RewritePath=/admin, /admin
+
+            - id: spring-boot-admin
+              uri: lb://spring-boot-admin
+              predicates:
+                - Path=/admin/**
+              filters:
+                - RewritePath=/admin/(?<segment>.*), /admin/${segment}
+
+            - id: eureka-server-root
+              uri: lb://eureka-server
+              predicates:
+                - Path=/eureka
+              filters:
+                - RewritePath=/eureka, /eureka
+
+            - id: eureka-server
+              uri: lb://eureka-server
+              predicates:
+                - Path=/eureka/**
+              filters:
+                - RewritePath=/eureka/(?<segment>.*), /eureka/${segment}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
