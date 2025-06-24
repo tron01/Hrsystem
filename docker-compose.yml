@@ -1,13 +1,13 @@
-version: '3.8'
+version: '2.4'
 
 services:
 
-  #  Kafka Broker 1 (KRaft mode)
   kafka1:
     image: bitnami/kafka:latest
     ports:
       - "9092:9092"
     environment:
+      - KAFKA_KRAFT_CLUSTER_ID=kraft-cluster
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_NODE_ID=1
       - KAFKA_CFG_PROCESS_ROLES=broker,controller
@@ -19,18 +19,21 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=2
       - ALLOW_PLAINTEXT_LISTENER=yes
+    cpus: 0.40
+    volumes:
+      - kafka1-data:/bitnami/kafka
     healthcheck:
       test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
       interval: 10s
       timeout: 10s
       retries: 5
 
-  #  Kafka Broker 2 (KRaft mode)
   kafka2:
     image: bitnami/kafka:latest
     ports:
       - "9192:9092"
     environment:
+      - KAFKA_KRAFT_CLUSTER_ID=kraft-cluster
       - KAFKA_BROKER_ID=2
       - KAFKA_CFG_NODE_ID=2
       - KAFKA_CFG_PROCESS_ROLES=broker,controller
@@ -42,21 +45,35 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=2
       - ALLOW_PLAINTEXT_LISTENER=yes
+    cpus: 0.40
+    volumes:
+      - kafka2-data:/bitnami/kafka
     healthcheck:
       test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
       interval: 10s
       timeout: 10s
       retries: 5
 
-  #  MongoDB for data storage
   mongo:
     image: mongo:6.0
     ports:
       - "27018:27017"
     environment:
       MONGO_INITDB_DATABASE: applicationdb
+    cpus: 0.20
 
-  #  Eureka Server (Service Registry)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "9085:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=kraft-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092,kafka2:9192
+    depends_on:
+      - kafka1
+      - kafka2
+    cpus: 0.25
+
   eureka-server:
     build: ./eureka-server
     ports:
@@ -65,8 +82,8 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - mongo
+    cpus: 0.20
 
-  #  Spring Boot Admin for monitoring
   spring-boot-admin:
     build: ./spring-boot-admin
     ports:
@@ -75,18 +92,18 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - eureka-server
+    cpus: 0.20
 
-  #  API Gateway (entry point)
   api-gateway:
     build: ./api-gateway
     ports:
-      - "8080:8080"  # exposed on host
+      - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - eureka-server
+    cpus: 0.20
 
-  #  Job Posting Service
   job-posting-service:
     build: ./job-posting-service
     ports:
@@ -98,8 +115,8 @@ services:
       - kafka1
       - kafka2
       - eureka-server
+    cpus: 0.20
 
-  #  Auth Service
   auth-service:
     build: ./auth-service
     ports:
@@ -109,8 +126,8 @@ services:
     depends_on:
       - mongo
       - eureka-server
+    cpus: 0.20
 
-  #  Application Submit Service
   application-submit-service:
     build: ./application-submit-service
     ports:
@@ -122,8 +139,8 @@ services:
       - kafka1
       - kafka2
       - eureka-server
+    cpus: 0.20
 
-  #  Resume Parser Service
   resume-parser-service:
     build: ./resume-parser-service
     ports:
@@ -135,16 +152,8 @@ services:
       - kafka1
       - kafka2
       - eureka-server
+    cpus: 0.20
 
-
-  # 📈 Kafka UI Dashboard
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - "9085:8080"  # Mapped differently to avoid conflict with api-gateway
-    environment:
-      - KAFKA_CLUSTERS_0_NAME=kraft-cluster
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092,kafka2:9192
-    depends_on:
-      - kafka1
-      - kafka2
+volumes:
+  kafka1-data:
+  kafka2-data:
