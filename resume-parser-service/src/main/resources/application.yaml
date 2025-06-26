@@ -1,22 +1,27 @@
+server:
+  port: 8083
+
 spring:
+  application:
+    name: resume-parser-service
+
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: resume-parser-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
       properties:
         spring.json.value.default.type: com.Abhijith.resume_parser_service.kafka.event.ResumeParseEvent
         spring.json.trusted.packages: "com.Abhijith.resume_parser_service.kafka.event"
-  application:
-    name: resume-parser-service
+        spring.json.use.type.headers: false
+    listener:
+      ack-mode: manual
+
   data:
     mongodb:
       uri: mongodb://localhost:27017/applicationdb
-
-
-server:
-  port: 8083
 
 eureka:
   client:
@@ -36,4 +41,3 @@ management:
     web:
       exposure:
         include: "*"
-
