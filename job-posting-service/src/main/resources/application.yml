@@ -4,7 +4,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/applicationdb
-
+  threads:
+    virtual:
+      enabled: true
 server:
   port: 8081
 
@@ -19,3 +21,9 @@ eureka:
 
 jwt:
   secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

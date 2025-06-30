@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: application-submit-service
+  threads:
+    virtual:
+      enabled: true
   servlet:
     multipart:
       enabled: true
@@ -52,6 +55,4 @@ management:
   endpoints:
     web:
       exposure:
-        include:
-          - health
-          - info
+        include: "*"

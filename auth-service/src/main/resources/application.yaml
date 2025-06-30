@@ -1,4 +1,7 @@
 spring:
+  threads:
+    virtual:
+      enabled: true
   application:
     name: auth-service
   data:
@@ -25,6 +28,4 @@ management:
   endpoints:
     web:
       exposure:
-        include:
-          - health
-          - info
+        include: "*"

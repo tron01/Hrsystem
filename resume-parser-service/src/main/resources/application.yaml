@@ -4,7 +4,9 @@ server:
 spring:
   application:
     name: resume-parser-service
-
+  threads:
+    virtual:
+      enabled: true
   kafka:
     bootstrap-servers: localhost:9092
     consumer:

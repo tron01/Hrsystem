@@ -7,6 +7,9 @@ spring:
   servlet:
     multipart:
       enabled: true
+  threads:
+    virtual:
+      enabled: true
   cloud:
     gateway:
       server:
@@ -110,10 +113,7 @@ management:
   endpoints:
     web:
       exposure:
-        include:
-          - health
-          - info
-
+        include: "*"
   endpoint:
     gateway:
       enabled: true
