@@ -60,12 +60,14 @@ public class AdminController {
 					       .body(new ErrorResponse("Job not found with id: " + id, 404, LocalDateTime.now()));
 		}
 	}
-
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/count")
 	public ResponseEntity<Map<String, Long>> getTotalJobCount() {
 		Map<String, Long> response = Map.of("totalJobs", jobService.getTotalJobCount());
 		return ResponseEntity.ok(response);
 	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/count-by-company")
 	public ResponseEntity<List<Map<String, Object>>> getJobCountByCompany() {
 		return ResponseEntity.ok(jobService.getJobCountByCompany());
