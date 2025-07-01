@@ -96,6 +96,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Required: Micrometer Tracing Bridge for OpenTelemetry -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-otel</artifactId>
+		</dependency>
+
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

@@ -96,8 +96,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+		<!-- Required: Micrometer Tracing Bridge for OpenTelemetry -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-otel</artifactId>
+		</dependency>
 
-    </dependencies>
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

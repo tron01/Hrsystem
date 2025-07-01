@@ -39,7 +39,14 @@ kafka:
     resume-parse: resume-parse-topic
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
         include: "*"
+
+logging:
+  pattern:
+    level: "%5p [traceId=%X{traceId} spanId=%X{spanId}] %m%n"

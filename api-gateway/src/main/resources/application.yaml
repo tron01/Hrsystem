@@ -104,12 +104,13 @@ eureka:
     prefer-ip-address: true
 
 logging:
-  level:
-    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web: DEBUG
+  pattern:
+    level: "%5p [traceId=%X{traceId} spanId=%X{spanId}] %m%n"
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:

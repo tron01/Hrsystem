@@ -23,7 +23,14 @@ jwt:
   secret: mySuperqfqfqfqfqfqSecretKey1afaff23456dfffafqfqffqfqf
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
         include: "*"
+
+logging:
+  pattern:
+    level: "%5p [traceId=%X{traceId} spanId=%X{spanId}] %m%n"
