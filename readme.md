@@ -2,14 +2,26 @@
 
 ## Overview
 
-This is a Microservices-based HR System built using **Spring Boot**, **Spring Cloud**, **Eureka**, **Spring Cloud Gateway**, **Kafka**, and **Docker Compose**. The system includes services for:
+This project is a microservices-based Human Resources (HR) System developed in Java using **Spring Boot**, **Spring Cloud**, **Eureka**, **Spring Cloud Gateway**, **Kafka**, and **Docker Compose**. It features secure authentication, job posting, automated LLM-powered resume parsing, and asynchronous event-driven workflows.  
+**Ollama** is integrated for advanced resume analysis using the custom-instructed **IBM Granite 3.3:2b** model.
 
-- User Authentication
-- Job Posting
-- Resume Parsing
-- Application Submission
-- Monitoring with Spring Boot Admin
-- Asynchronous Resume Parsing triggered by Job Applications
+---
+
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Service Overview](#service-overview)
+- [Kafka Messaging](#kafka-messaging)
+- [Ollama LLM Integration](#ollama-llm-integration)
+- [Deployment](#deployment)
+- [Security](#security)
+- [Monitoring](#monitoring)
+- [API Gateway Routing](#api-gateway-routing)
+- [Communication](#communication)
+- [Customization](#customization)
+- [License](#license)
 
 ---
 
@@ -24,230 +36,248 @@ HrSystem/
 ├── job-posting-service/
 ├── resume-parser-service/
 ├── spring-boot-admin/
-├── docker-compose.yml
+├── ollama/                 # Ollama config & Modelfile for IBM Granite 3.3:2b
+├── docker-kafka.yaml       # Kafka-only deployment 
+├── docker-ollama.yaml      # Ollama LLM deployment
+├── docker-compose.yaml     # Main stack orchestration (optional)
 └── .gitignore
 ```
 
 ---
 
-## Services Description
+## Features
 
-| Service                        | Port | Description                                          |
-| ------------------------------ | ---- | ---------------------------------------------------- |
-| **Eureka Server**              | 8761 | Service discovery                                    |
-| **API Gateway**                | 8080 | Gateway for routing requests                         |
-| **Spring Boot Admin**          | 9090 | Admin UI to monitor microservices                    |
-| **Auth Service**               | 8084 | Handles JWT-based authentication                     |
-| **Job Posting Service**        | 8081 | Manages job postings                                 |
-| **Resume Parser Service**      | 8083 | Parses resumes from uploaded PDF                     |
-| **Application Submit Service** | 8082 | Handles job applications and triggers resume parsing |
+- **User Authentication** (JWT, HTTP-only cookies)
+- **Job Posting and Management**
+- **Resume Upload & Parsing** (LLM-powered extraction with IBM Granite 3.3:2b)
+- **Application Submission**
+- **Event-driven Microservices** (Kafka-based)
+- **Service Discovery** (Eureka)
+- **API Gateway** (Spring Cloud Gateway)
+- **Monitoring** (Spring Boot Admin)
+- **Containerized Deployment** (Docker Compose)
 
 ---
 
-## Docker Compose
+## Architecture
 
-Kafka and Zookeeper are used for asynchronous communication and are managed via `docker-compose.yml`:
+- **Backend:** Java (Spring Boot Microservices)
+- **Messaging:** Kafka 
+- **LLM Integration:** Ollama (IBM Granite 3.3:2b custom, via Modelfile)
+- **Service Discovery:** Eureka
+- **API Gateway:** Spring Cloud Gateway
+- **Monitoring:** Spring Boot Admin + Actuator
 
+---
+
+## Service Overview
+
+| Service                        | Port   | Description                                             |
+| ------------------------------ | ------ | ------------------------------------------------------- |
+| **Eureka Server**              | 8761   | Service discovery for all microservices                 |
+| **API Gateway**                | 8080   | Entry point, routes requests to internal services       |
+| **Spring Boot Admin**          | 9090   | Monitoring dashboard for all microservices              |
+| **Auth Service**               | 8084   | User authentication, JWT issuing                        |
+| **Job Posting Service**        | 8081   | CRUD for job postings                                   |
+| **Resume Parser Service**      | 8083   | PDF extraction + LLM (Ollama) analysis                  |
+| **Application Submit Service** | 8082   | Handles job applications, triggers resume parsing        |
+| **Kafka**                      | 9092   | Event bus for async communication  |
+| **Ollama**                     | 11434  | Local LLM API for resume analysis (IBM Granite 3.3:2b)  |
+
+---
+
+## Kafka Messaging 
+
+Kafka is deployed using `docker-kafka.yaml`.  
+This enables lightweight, reliable messaging for all async flows (e.g., when a job application is submitted, resume parsing is triggered via Kafka event).
+
+**Start Kafka:**
+```bash
+docker compose -f docker-kafka.yaml up -d
 ```
-docker-compose up
+
+---
+
+## Ollama LLM Integration
+
+- **Ollama** runs as a separate container (see `docker-ollama.yaml`), serving the **IBM Granite 3.3:2b** model, customized via the `ollama/Modelfile`.
+- **Resume parsing** uses this LLM to extract and structure candidate data from PDFs with advanced, instructable prompts.
+
+**Start Ollama:**
+```bash
+docker compose -f docker-ollama.yaml up -d
 ```
 
-This command brings up:
+**Customizing the Model:**
+- The `ollama/Modelfile` specifies the base model and any custom instructions for tailoring resume parsing to your needs.
 
-- **Kafka**
-- **Zookeeper**
+**Modelfile Example:**
+With:
+```markdown
+FROM granite3.3:2b
+
+SYSTEM """
+You are a strict resume parser.
+
+Your job is to extract structured resume data into a **single valid JSON object** using the exact format below.
+You must NOT infer, guess, or hallucinate any information not explicitly stated in the input.
+
+Return JSON in this **exact structure and key order**:
+
+{
+  "name": string,
+  "email": string,
+  "phone": string,
+  "socialMedia": {
+    "linkedin": string or null,
+    "github": string or null,
+    "portfolio": string or null
+  },
+  "skills": [string],
+  "education": [
+    {
+      "degree": string,
+      "university": string,
+      "startYear": string,
+      "endYear": string,
+      "CGPA": string
+    }
+  ],
+  "experience": [
+    {
+      "company": string,
+      "position": string,
+      "from": string,
+      "to": string,
+      "description": string
+    }
+  ],
+  "projects": [
+    {
+      "title": string,
+      "description": string,
+      "technologies": [string]
+    }
+  ],
+  "languages": [
+    {
+      "language": string,
+      "proficiency": string or null
+    }
+  ],
+  "certifications": [
+    {
+      "name": string,
+      "issuer": string
+    }
+  ]
+}
+
+📏 Rules:
+- All keys must be lowercase and strictly follow the structure above.
+- Always include all top-level fields, even if empty: return empty arrays `[]` or `null` for missing subfields.
+- Do NOT guess or generate placeholder values like “Not specified”, “Unknown”, or empty strings.
+- For missing `socialMedia` fields → set value to `null`.
+- For missing `proficiency` in `languages` → set `"proficiency": null`.
+- If any required subfield inside an object is missing, omit that object from the array.
+- If multiple emails/phones are found, return the first valid one only.
+- `email` must follow a valid format: e.g., name@example.com
+- `phone` must be a valid number with 10 to 15 digits, optionally with country code. Remove all dashes, spaces, and parentheses.
+- Dates like “Jan 2022 – Present” → `"from": "2022"`, `"to": "Present"`
+- Output must be valid JSON — no markdown, no trailing commas, no comments.
+- Never return any placeholder values like "Not specified", "N/A", or "Unknown".
+- If required fields like `company`, `position`, or `description` are missing in any `experience` object, omit the entire object.
+- For any optional field (like `proficiency`) that is missing, return `null`.
+- Never duplicate any JSON keys.
+- Do not include unrelated keys like `phone` or `email` under `experience`.
+- Do not infer or assume technologies or proficiencies if not stated in the input.
+
+🧪 Output a single strict JSON object only — no explanations or extra text.
+"""
+```
+
+---
+
+## Deployment
+
+### Quickstart
+
+1. **Start Kafka :**
+    ```bash
+    docker compose -f docker-kafka.yaml up -d
+    ```
+
+2. **Start Ollama (LLM API):**
+    ```bash
+    docker compose -f docker-ollama.yaml up -d
+    ```
+
+3. **Start the microservices stack:**
+    ```bash
+    docker compose up -d
+    ```
+   *(Or start individual microservices with Maven/Gradle as needed.)*
+
+### Configuration
+
+- The **resume-parser-service** connects to the Ollama API at `http://ollama:11434` and uses the IBM Granite 3.3:2b model as defined in the `Modelfile`.
+- Kafka broker connection details are set in each service's `application.yaml`.
 
 ---
 
 ## Security
 
-- JWT-based authentication via `auth-service`
-- HTTP-only cookie-based token handling through API Gateway
+- **JWT-based authentication** via `auth-service`
+- **API Gateway** enforces HTTP-only cookie-based session handling
 
 ---
 
 ## Monitoring
 
-- **Spring Boot Admin** monitors all microservices
-- Integrated with **Spring Boot Actuator** for health and metrics
-
----
-
-## Service Discovery
-
-- All services register with **Eureka Server** at `http://localhost:8761`
-- API Gateway uses Eureka for dynamic routing
+- **Spring Boot Admin** provides a live dashboard of service health and metrics.
+- **Spring Boot Actuator** endpoints are enabled for detailed monitoring.
 
 ---
 
 ## API Gateway Routing
 
 | Path Prefix           | Mapped Service               | Final Endpoint Pattern       |
-| --------------------- | ---------------------------- | ---------------------------- |
-| `/jobs`               | `job-posting-service`        | `/api/jobs/**`               |
-| `/applications`       | `application-submit-service` | `/api/applications/**`       |
-| `/auth`               | `auth-service`               | `/api/auth/**`               |
-| `/admin/users`        | `auth-service`               | `/api/admin/users/**`        |
-| `/admin/jobs`         | `job-posting-service`        | `/api/admin/jobs/**`         |
-| `/admin/applications` | `application-submit-service` | `/api/admin/applications/**` |
+| --------------------- | ---------------------------- | --------------------------- |
+| `/jobs`               | `job-posting-service`        | `/api/jobs/**`              |
+| `/applications`       | `application-submit-service` | `/api/applications/**`      |
+| `/auth`               | `auth-service`               | `/api/auth/**`              |
+| `/admin/users`        | `auth-service`               | `/api/admin/users/**`       |
+| `/admin/jobs`         | `job-posting-service`        | `/api/admin/jobs/**`        |
+| `/admin/applications` | `application-submit-service` | `/api/admin/applications/**`|
 
+---
 
 ## Communication
-- **Feign Clients** are used for RESTful inter-service communication
-- **Kafka** is used for event-driven scenarios:
-   - When a user submits a job application, an event is published to Kafka
-   - The **Resume Parser Service** listens for this event and automatically processes the uploaded resume
 
-
-
-
-
----
-## Controller Endpoints (Grouped by Role)
-
-
-### 👤 USER Endpoints (`ROLE_USER`)
-
-#### AuthController – `/api/auth`
-| Method | Path        | Description                    |
-| ------ | ----------- | ------------------------------ |
-| POST   | `/login`    | Login with credentials         |
-| POST   | `/register` | Register a new user            |
-| POST   | `/logout`   | Logout user                    |
-| GET    | `/me`       | Get current authenticated user |
-
-#### JobController – `/api/jobs`
-| Method | Path    | Description   |
-| ------ | ------- | ------------- |
-| GET    | `/`     | View all jobs |
-| GET    | `/{id}` | View job by ID|
-
-#### ApplicationController – `/api/applications`
-| Method | Path       | Description                           |
-| ------ | ---------- | ------------------------------------- |
-| POST   | `/submit`  | Submit application with resume upload |
-| GET    | `/my`      | Get own applications                  |
-| GET    | `/my/{id}` | Get specific application by ID        |
-| PUT    | `/{id}`    | Update phone or resume                |
+- **Feign Clients** for RESTful calls between services.
+- **Kafka** for event-driven flows (e.g., application submission triggers resume parsing via a Kafka message).
+- **Ollama** (IBM Granite 3.3:2b LLM) is invoked by the resume parser service for semantic data extraction from uploaded resumes.
 
 ---
 
-### 🧑‍💼 HR Endpoints (`ROLE_HR`)
+## Customization
 
-#### JobController – `/api/jobs/hr`
-| Method | Path         | Description                   |
-| ------ | ------------ | ----------------------------- |
-| POST   | `/hr`        | Create a new job posting      |
-| GET    | `/hr`        | Get all jobs posted by HR     |
-| GET    | `/hr/{id}`   | Get specific job posted by HR |
-| PUT    | `/hr/{id}`   | Update job by HR              |
-| DELETE | `/hr/{id}`   | Delete job by HR              |
-
-#### ApplicationController – `/api/applications/hr`
-| Method | Path                     | Description                         |
-| ------ | ------------------------ | ----------------------------------- |
-| GET    | `/hr`                    | Get applications for HR's job posts |
-| GET    | `/hr/{id}`               | Get specific application by ID      |
-| PATCH  | `/hr/{id}/status`        | Update application status           |
-| GET    | `/hr/{id}/parsed-resume` | Get parsed resume for application   |
+- **Ollama LLM model** and prompt instructions can be tailored by editing `ollama/Modelfile`.
+- **Kafka** configuration is managed via `docker-kafka.yaml`.
+- **Service ports, gateway routes, and other parameters** can be modified in each service’s `application.yaml`.
 
 ---
 
-### 🛠️ ADMIN Endpoints (`ROLE_ADMIN`)
+## License
 
-#### AdminController (Users) – `/api/admin/users`
-| Method | Path                        | Description                        |
-| ------ | --------------------------- | ---------------------------------- |
-| GET    | `/`                         | Get all users                      |
-| GET    | `/{id}`                     | Get user by ID                     |
-| PUT    | `/{id}`                     | Update user                        |
-| PATCH  | `/{id}/enable?enabled=true` | Enable/disable user account        |
-| GET    | `/user-summary`             | Get summary statistics about users |
-
-#### AdminController (Jobs) – `/api/admin/jobs`
-| Method | Path                | Description                  |
-| ------ | ------------------- | ---------------------------- |
-| GET    | `/`                 | Get all jobs                 |
-| GET    | `/{id}`             | Get job by ID                |
-| PUT    | `/{id}`             | Update any job               |
-| DELETE | `/{id}`             | Delete job                   |
-| GET    | `/count`            | Total job count              |
-| GET    | `/count-by-company` | Job count grouped by company |
-
-#### AdminController (Applications) – `/api/admin/applications`
-| Method | Path     | Description                 |
-| ------ | -------- | --------------------------- |
-| GET    | `/`      | Get all applications        |
-| GET    | `/{id}`  | Get application by ID       |
-| GET    | `/count` | Get total application count |
+This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-#### 📄 ParsedResumeController – `/api/applications/parsed-resumes`
+## Acknowledgements
 
-| Method | Path    | Description             |
-| ------ | ------- | ----------------------- |
-| GET    | `/`     | Get all parsed resumes  |
-| GET    | `/{id}` | Get parsed resume by ID |
-
-
----
-## Running the Project
-
-### Prerequisites
-
-- Java 21+
-- Maven
-- Docker
-- IntelliJ IDEA or similar IDE
-
-### Steps
-
-1. Start Kafka and Zookeeper:
-   ```bash
-   docker-compose up
-   ```
-2. Start Eureka Server
-3. Start Spring Boot Admin
-4. Start API Gateway
-5. Start remaining services (Auth, Job, Resume, Application)
-
-### Access URLs
-
-- Eureka Dashboard: `http://localhost:8761`
-- Spring Boot Admin: `http://localhost:9090`
-- API Gateway: `http://localhost:8080`
-
----
-
-## Configuration Tips
-
-Eureka client config for each service:
-
-```yaml
-eureka:
-   client:
-      service-url:
-         defaultZone: http://localhost:8761/eureka
-```
-
-Spring Boot Admin client config:
-
-```yaml
-spring:
-   boot:
-      admin:
-         client:
-            url: http://localhost:9090
-            instance:
-               prefer-ip: true
-```
-
----
-
-## Future Enhancements
-
-- Deploy to Kubernetes
-- Build front-end using React or Thymeleaf
-- Integrate OAuth2 or Keycloak for authentication
-
+- [Spring Boot](https://spring.io/projects/spring-boot)
+- [Spring Cloud](https://spring.io/projects/spring-cloud)
+- [Kafka](https://kafka.apache.org/)
+- [Ollama](https://ollama.com/)
+- [IBM Granite LLM](https://research.ibm.com/blog/granite-generative-ai-models)
