@@ -1,0 +1,43 @@
+John
+Email: john.email@example.com
+Phone: 8790888345
+LinkedIn: [linkedin.com/in/john]
+GitHub: [github.com/john]
+Professional Summary
+Recent MCA graduate (2024) with strong foundation in software development and backend
+technologies. Skilled in Java, Python, JavaScript, Node.js, React, Spring Boot, REST APIs, Git, and
+GitHub Actions. Completed a 3-month internship as a Java Backend Developer, delivering API
+development and backend solutions. Seeking opportunities to contribute and grow in a dynamic
+development team.
+Technical Skills
+• Languages: Java, Python, JavaScript
+• Frameworks & Libraries: Spring, Spring Boot, React, Node.js
+• Web & APIs: REST API development, JSON, HTTP
+• Tools & Platforms: Git, GitHub Actions, Maven, IntelliJ IDEA, VS Code
+• Databases: MySQL, MongoDB (basic knowledge)
+• Other: Agile methodologies, version control
+Work Experience
+Java Backend Developer Intern
+Wsx Coders — June 2024 to march 2025
+• Developed RESTful APIs using Java and Spring Boot for internal applications.
+• Assisted in backend logic implementation and database interaction.
+• Collaborated with frontend developers to integrate APIs with React applications.
+• Used Git and GitHub Actions for version control and CI/CD pipeline automation.
+• Gained experience in debugging, testing, and code reviews.
+Education
+Master of Computer Applications (MCA)
+APJ Abdul Kalam Technological University, 2024
+Bachelor of Computer Applications (BCA)
+Mahatma Gandhi University, 2022
+Projects (Optional)
+• Legal Advisor: Legal Advisor Is a Legal Consultation Web Page Developed Using Django
+Framework.
+• Student Performance Predicting System: A Student Performance Predicting System is a web
+application for managing and predicting student performance. It's developed using the
+Django Framework and integrates Machine Learning algorithms.
+Certifications (Optional)
+• Data Base Management System
+• Accenture - Data Analytics and Visualization Job Simulation
+• Docker Essentials: A Developer Introduction
+Personal Details
+• Languages: English, Malayalam
