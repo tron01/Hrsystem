@@ -70,7 +70,7 @@ public class AuthService {
     
     public ResponseEntity<?> register(RegisterRequest request) {
         
-        List<String> allowedRoles = List.of("USER", "HR");
+        List<String> allowedRoles = List.of("USER", "HR","ADMIN");
         String requestedRole = request.getRole().toUpperCase();
         
         if (!allowedRoles.contains(requestedRole)) {

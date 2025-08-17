@@ -3,7 +3,7 @@ spring:
     name: job-posting-service
   data:
     mongodb:
-      uri: mongodb://mongo:27017/applicationdb
+      uri: mongodb://root:root@mongodb:27017/applicationdb?authSource=admin
 
 server:
   port: 8081

@@ -1,10 +1,13 @@
 spring:
+  threads:
+    virtual:
+      enabled: true
   application:
     name: auth-service
   data:
     mongodb:
-      uri: mongodb://mongo:27017/applicationdb
-
+      uri: mongodb://root:root@mongodb:27017/applicationdb?authSource=admin
+      #mongodb://mongo:27017/applicationdb
 server:
   port: 8084
 

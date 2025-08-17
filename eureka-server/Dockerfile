@@ -1,6 +1,5 @@
 # Use a slim JDK 21 base image
-FROM eclipse-temurin:21-jdk-alpine AS base
-
+FROM eclipse-temurin:21-jre-alpine
 # Set working directory inside container
 WORKDIR /app
 

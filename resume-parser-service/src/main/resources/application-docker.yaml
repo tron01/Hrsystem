@@ -1,18 +1,31 @@
 spring:
+  ai:
+    ollama:
+      base-url: http://ollama:11434
+      chat:
+        model: resume-sf # your custom model created from Modelfile
+        options:
+          temperature: 0
+          keep-alive: 5m
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: kafka1:9092
     consumer:
       group-id: resume-parser-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
       properties:
         spring.json.value.default.type: com.Abhijith.resume_parser_service.kafka.event.ResumeParseEvent
         spring.json.trusted.packages: "com.Abhijith.resume_parser_service.kafka.event"
-  application:
-    name: resume-parser-service
+        spring.json.use.type.headers: false
+    listener:
+      ack-mode: manual
+  threads:
+    virtual:
+      enabled: true
   data:
     mongodb:
-      uri: mongodb://mongo:27017/applicationdb
+      uri: mongodb://root:root@mongodb:27017/applicationdb?authSource=admin
 
 server:
   port: 0 # Use random port for Docker
@@ -35,7 +48,16 @@ kafka:
     resume-parse: resume-parse-topic
 
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
         include: "*"
+
+logging:
+  level:
+    com.Abhijith.resume_parser_service: DEBUG
+  pattern:
+    level: "%5p [traceId=%X{traceId} spanId=%X{spanId}] %m%n"
